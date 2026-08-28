@@ -1,10 +1,12 @@
 # Titanic Survival Prediction
 
-Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 실험입니다. 단순히 가장 높은 점수를 찾는 데서 끝내지 않고, **어떤 피처와 모델을 왜 시도했고 무엇을 근거로 유지·제외했는지**, 그리고 검증 데이터 누수를 어떻게 통제했는지를 함께 기록했습니다.
+Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 학습 프로젝트입니다. 단순히 가장 높은 점수를 찾는 데서 끝내지 않고, **당시 어떤 피처와 모델을 시도했고 무엇을 근거로 유지·제외했는지**, 그리고 이후 GitHub에 정리하면서 검증 구조를 어떻게 재점검했는지를 기록했습니다.
+
+> 이 저장소의 목적은 새로운 성능 경쟁이 아니라, **당시 학습 과정과 의사결정을 정확하게 보존하는 것**입니다. 과거 기록에서 확인되지 않는 선택 이유는 사후에 만들어 넣지 않습니다.
 
 ## 핵심 결과
 
-현재 재검증한 최종 후보는 `FamilySize`, `IsAlone`, `Title`, `TicketGroupSize`, `FarePerPerson`을 사용하는 튜닝 Random Forest입니다. 개발 데이터의 OOF 예측에서 F1을 기준으로 threshold `0.47`을 선택했습니다.
+GitHub 정리 과정에서 재검증한 최종 후보는 `FamilySize`, `IsAlone`, `Title`, `TicketGroupSize`, `FarePerPerson`을 사용하는 튜닝 Random Forest입니다. 개발 데이터의 OOF 예측에서 F1을 기준으로 threshold `0.47`을 선택했습니다.
 
 | 평가 구간 | Accuracy | Precision | Recall | F1 | ROC-AUC |
 |---|---:|---:|---:|---:|---:|
@@ -37,12 +39,12 @@ Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 �
 | 모델 탐색 | 한 모델만 바로 튜닝할 것인가? | LR · RF · HGB · XGB를 동일 5-Fold에서 비교 |
 | 맥락 피처 | 원본 변수만으로 충분한가? | `FamilySize` · `IsAlone` · `Title` 추가 |
 | 실패 실험 | `CabinKnown`은 도움이 되는가? | HGB F1이 약 0.7733 → 0.7662로 하락해 제외 |
-| 모델 선택 | HGB/XGB가 초기 결과에서 강한데 왜 RF인가? | 튜닝 + 모델별 OOF threshold 비교 후 RF F1 약 0.7852로 최종 후보 선택 |
-| 재검증 | Ticket 피처를 안전하게 쓸 수 있는가? | Fold 내부에서 `TicketGroupSize` 계산, `FarePerPerson` 추가 |
+| 모델 선택 | HGB/XGB가 초기 결과에서 강한데 왜 RF인가? | 튜닝 + 모델별 OOF threshold 비교 후 RF F1 약 0.7852로 당시 최종 후보 선택 |
+| GitHub 재검증 | Ticket 피처를 안전하게 쓸 수 있는가? | Fold 내부에서 `TicketGroupSize` 계산, `FarePerPerson` 추가 |
 | threshold | 0.5를 그대로 쓸 것인가? | OOF F1 기준 `0.47` 선택 |
 | 최종 평가 | hold-out 결과를 보고 다시 조정할 것인가? | 마지막 1회 평가 후 재선택하지 않음 |
 
-> 과거 학습 당시의 실험과 2026-08-27~28 GitHub 정리 과정에서 다시 검증한 실험은 구분해 기록했습니다. 과거 기록에 없는 선택 이유는 사후에 만들어 넣지 않았습니다.
+> 과거 학습 당시의 실험과 2026-08-27~28 GitHub 정리 과정에서 다시 검증한 실험은 구분해 기록했습니다.
 
 ### 자세한 기록
 
@@ -63,24 +65,7 @@ Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 �
 
 따라서 RF는 기본 모델 비교에서 처음부터 최고였기 때문에 선택한 것이 아니라, **튜닝과 threshold 재비교 이후 F1 기준으로 가장 높은 결과를 기록해 당시 최종 후보가 되었습니다.**
 
-이후 GitHub 재검증 단계에서는 Ticket 피처를 Fold-safe하게 다시 구현하고 `FarePerPerson`을 추가해 OOF F1 `0.791`, threshold `0.47`을 얻었습니다.
-
-### Ticket 피처 동일조건 재비교
-
-현재 최종 후보의 모델 선택 근거를 더 엄밀하게 확인하기 위해 `scripts/compare_ticket_models.py`를 추가했습니다. 이 스크립트는 다음 조건을 RF · HGB · XGB에 **동일하게 적용**합니다.
-
-- 동일한 development / locked hold-out 분리 (`random_state=42`)
-- 동일한 `FamilySize`, `IsAlone`, `Title`, `TicketGroupSize`, `FarePerPerson`
-- `TicketGroupSize`는 각 학습 Fold 내부에서만 계산
-- 동일한 `StratifiedKFold` 5-Fold
-- 모델별 OOF probability에서 F1 기준 threshold 탐색
-- 비교 과정에서는 locked hold-out을 열지 않음
-
-현재 저장소에는 원본 CSV를 포함하지 않기 때문에 새 비교 결과를 임의로 기입하지 않습니다. `data/titanic_train.csv`를 배치한 뒤 아래 명령을 실행하면 `assets/ticket_model_recomparison.csv`가 생성됩니다.
-
-```powershell
-python scripts/compare_ticket_models.py
-```
+이후 GitHub 정리 과정에서는 Ticket 피처를 Fold-safe하게 다시 구현하고 `FarePerPerson`을 추가해 OOF F1 `0.791`, threshold `0.47`을 얻었습니다.
 
 ![모델 비교](assets/model_comparison.png)
 
@@ -140,21 +125,21 @@ Kaggle test 418
 
 ### 최종 모델 비교 범위
 
-현재 Ticket 피처를 적용한 튜닝 RF의 OOF F1 `0.791`은 **현재 실행까지 완료된 실험 중 가장 높은 결과**입니다. 동일 Ticket 피처 조건에서 RF · HGB · XGB를 재비교하는 실행 스크립트는 추가했지만, 새 결과는 원본 train CSV로 실제 실행한 뒤에만 확정해 기록합니다.
+현재 Ticket 피처를 적용한 튜닝 RF의 OOF F1 `0.791`은 **실제로 수행한 실험 중 가장 높은 결과**입니다. Ticket 피처를 동일하게 적용한 HGB와 XGB까지 새로 재비교하지는 않았으므로 “모든 모델 중 최적”이라고 표현하지 않습니다.
 
 ### hold-out
 
 OOF F1 `0.791`에 비해 hold-out F1은 `0.766`으로 낮았습니다. 하지만 이 값을 보고 다시 threshold나 모델을 수정하지 않았습니다. hold-out을 다시 개발 데이터처럼 사용하지 않기 위해서입니다.
 
-## 다음 실험 후보
+## 추가로 검토할 수 있었던 항목 — 미수행
 
-- `scripts/compare_ticket_models.py` 실제 실행 후 동일조건 RF · HGB · XGB 결과 확정
+아래는 프로젝트를 정리하면서 한계 점검 차원에서 정리한 **후속 아이디어일 뿐, 이 저장소에서 실제로 수행한 실험은 아닙니다.**
+
 - Ticket 단위 group split과 현재 승객 단위 split 비교
+- 동일한 Ticket 피처 조건에서 RF · HGB · XGB 재비교
 - 파생 피처별 ablation table 작성
 - 여러 random seed에서 평균·표준편차 확인
 - probability calibration과 threshold 안정성 확인
-
-이 항목들은 현재 결과의 문제를 숨기기 위한 것이 아니라 **어디까지 검증했고 다음에 무엇을 확인해야 하는지 명확히 남기기 위한 백로그**입니다.
 
 ## 저장소 구조
 
@@ -164,14 +149,13 @@ titanic-survival-prediction/
 ├── requirements.txt
 ├── notebooks/
 │   └── titanic_survival_modeling.ipynb
-├── scripts/
-│   └── compare_ticket_models.py
 ├── docs/
 │   ├── decision-log.md
 │   └── experiment-history.md
 ├── data/
 │   └── README.md
 └── assets/
+    ├── experiment_decision_flow.png
     ├── experiment_decision_flow.svg
     ├── model_comparison.png
     └── confusion_matrix.png
@@ -202,10 +186,4 @@ Jupyter 또는 VS Code에서 `notebooks/titanic_survival_modeling.ipynb`를 열�
 assets/model_comparison.png
 assets/confusion_matrix.png
 submission.csv
-```
-
-동일한 Ticket 피처 조건에서 RF · HGB · XGB를 비교하려면 다음을 실행합니다.
-
-```powershell
-python scripts/compare_ticket_models.py
 ```
