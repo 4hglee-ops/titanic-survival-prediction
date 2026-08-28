@@ -13,6 +13,10 @@ Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 �
 
 내부 hold-out은 모델·피처·threshold 선택이 끝난 뒤 한 번만 평가했습니다. Kaggle test 데이터에는 정답이 없으므로 성능 평가가 아니라 `submission.csv` 생성에만 사용합니다.
 
+![Titanic 실험 과정과 의사결정 흐름](assets/experiment_decision_flow.svg)
+
+> 위 흐름도는 과거 학습 당시 실험과 2026-08-27~28 GitHub 재검증을 구분합니다. 단계 사이의 숫자는 서로 다른 조건의 결과가 포함되어 있으므로 단순한 연속 성능 그래프로 해석하지 않습니다.
+
 ## 프로젝트에서 답하려 한 질문
 
 이 프로젝트의 핵심은 “Random Forest가 몇 점을 냈는가?”보다 다음 질문에 답하는 과정입니다.
@@ -149,6 +153,7 @@ titanic-survival-prediction/
 ├── data/
 │   └── README.md
 └── assets/
+    ├── experiment_decision_flow.svg
     ├── model_comparison.png
     └── confusion_matrix.png
 ```

@@ -1,0 +1,93 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760" role="img" aria-labelledby="title desc">
+  <title id="title">Titanic 생존 예측 실험과 의사결정 흐름</title>
+  <desc id="desc">기본 모델 비교부터 맥락 피처, RF 튜닝과 threshold 비교, Ticket 피처 재검증, locked hold-out 평가까지의 흐름</desc>
+  <defs>
+    <style>
+      .bg { fill:#f8fafc; }
+      .panel { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; }
+      .past { fill:#eff6ff; stroke:#93c5fd; stroke-width:2; }
+      .current { fill:#ecfdf5; stroke:#86efac; stroke-width:2; }
+      .final { fill:#fff7ed; stroke:#fdba74; stroke-width:2; }
+      .muted { fill:#64748b; font: 20px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .small { fill:#475569; font: 18px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .body { fill:#1e293b; font: 21px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .strong { fill:#0f172a; font: 700 24px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .title { fill:#0f172a; font: 800 38px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .subtitle { fill:#475569; font: 21px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .step { fill:#2563eb; font: 800 20px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .metric { fill:#0f766e; font: 800 24px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .metric2 { fill:#1d4ed8; font: 800 24px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .warn { fill:#b45309; font: 700 19px system-ui, -apple-system, 'Segoe UI', sans-serif; }
+      .arrow { stroke:#94a3b8; stroke-width:5; fill:none; marker-end:url(#arrowhead); }
+      .dash { stroke:#cbd5e1; stroke-width:2; stroke-dasharray:8 8; }
+    </style>
+    <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1400" height="760" rx="28"/>
+  <text class="title" x="55" y="68">Titanic 생존 예측: 실험 과정과 의사결정 흐름</text>
+  <text class="subtitle" x="55" y="105">점수 하나가 아니라 가설 → 비교 → 선택 → 재검증의 흐름을 기록</text>
+
+  <text class="step" x="55" y="155">과거 학습 실험</text>
+  <line class="dash" x1="55" y1="170" x2="885" y2="170"/>
+
+  <rect class="past" x="55" y="195" width="245" height="245" rx="22"/>
+  <text class="step" x="78" y="232">1. 기본 모델 비교</text>
+  <text class="body" x="78" y="275">LR · RF · HGB · XGB</text>
+  <text class="small" x="78" y="310">동일 5-Fold 기준 비교</text>
+  <text class="small" x="78" y="350">기본 피처 기준</text>
+  <text class="metric2" x="78" y="387">XGB F1 0.760</text>
+  <text class="metric" x="78" y="420">ROC-AUC 0.883</text>
+
+  <path class="arrow" d="M315 318 H345"/>
+
+  <rect class="past" x="360" y="195" width="245" height="245" rx="22"/>
+  <text class="step" x="383" y="232">2. 맥락 피처</text>
+  <text class="body" x="383" y="275">FamilySize · IsAlone</text>
+  <text class="body" x="383" y="307">Title 추가</text>
+  <text class="small" x="383" y="347">HGB가 F1에서 우세</text>
+  <text class="metric2" x="383" y="384">HGB F1 0.773</text>
+  <text class="small" x="383" y="419">XGB ROC-AUC 0.894</text>
+
+  <path class="arrow" d="M620 318 H650"/>
+
+  <rect class="past" x="665" y="195" width="245" height="245" rx="22"/>
+  <text class="step" x="688" y="232">3. 튜닝 + Threshold</text>
+  <text class="small" x="688" y="275">RF RandomizedSearchCV</text>
+  <text class="small" x="688" y="307">모델별 OOF threshold 탐색</text>
+  <text class="metric2" x="688" y="350">RF 0.46 → F1 0.7852</text>
+  <text class="small" x="688" y="382">HGB 0.53 → 0.7814</text>
+  <text class="small" x="688" y="414">XGB 0.42 → 0.7761</text>
+
+  <text class="step" x="955" y="155">GitHub 재검증</text>
+  <line class="dash" x1="955" y1="170" x2="1345" y2="170"/>
+
+  <path class="arrow" d="M925 318 H950"/>
+
+  <rect class="current" x="965" y="195" width="380" height="245" rx="22"/>
+  <text class="step" x="990" y="232">4. Ticket 피처 재구현</text>
+  <text class="body" x="990" y="275">TicketGroupSize · FarePerPerson</text>
+  <text class="small" x="990" y="310">각 학습 Fold 내부에서 계산</text>
+  <text class="small" x="990" y="342">OOF F1 기준 threshold 재탐색</text>
+  <text class="metric2" x="990" y="383">threshold 0.47</text>
+  <text class="metric" x="990" y="419">OOF F1 0.791</text>
+
+  <rect class="panel" x="55" y="495" width="855" height="205" rx="22"/>
+  <text class="strong" x="82" y="535">피처 의사결정</text>
+  <text class="body" x="82" y="575">✓ 유지: FamilySize · IsAlone · Title · TicketGroupSize · FarePerPerson</text>
+  <text class="body" x="82" y="615">✕ 제외: CabinKnown — HGB F1 약 0.7733 → 0.7662</text>
+  <text class="small" x="82" y="655">탐색했지만 최종 구성에 모두 남기지 않음: Surname · FamilySurvival · AgeGroup · Mother</text>
+  <text class="warn" x="82" y="684">그럴듯한 피처라도 검증 성능이 나빠지면 유지하지 않음</text>
+
+  <rect class="final" x="965" y="495" width="380" height="205" rx="22"/>
+  <text class="strong" x="990" y="535">5. Locked Hold-out</text>
+  <text class="small" x="990" y="572">모든 선택 후 1회만 평가</text>
+  <text class="metric2" x="990" y="612">F1 0.766</text>
+  <text class="metric" x="1170" y="612">ROC-AUC 0.853</text>
+  <text class="body" x="990" y="650">Accuracy 0.816</text>
+  <text class="warn" x="990" y="681">결과를 보고 다시 모델을 맞추지 않음</text>
+
+  <text class="muted" x="55" y="735">※ 과거 학습 기록과 2026-08-27~28 재검증 결과를 구분. 기록에 없는 선택 이유는 사후에 만들어 넣지 않음.</text>
+</svg>
