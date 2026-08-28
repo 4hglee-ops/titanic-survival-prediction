@@ -65,6 +65,23 @@ Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 �
 
 이후 GitHub 재검증 단계에서는 Ticket 피처를 Fold-safe하게 다시 구현하고 `FarePerPerson`을 추가해 OOF F1 `0.791`, threshold `0.47`을 얻었습니다.
 
+### Ticket 피처 동일조건 재비교
+
+현재 최종 후보의 모델 선택 근거를 더 엄밀하게 확인하기 위해 `scripts/compare_ticket_models.py`를 추가했습니다. 이 스크립트는 다음 조건을 RF · HGB · XGB에 **동일하게 적용**합니다.
+
+- 동일한 development / locked hold-out 분리 (`random_state=42`)
+- 동일한 `FamilySize`, `IsAlone`, `Title`, `TicketGroupSize`, `FarePerPerson`
+- `TicketGroupSize`는 각 학습 Fold 내부에서만 계산
+- 동일한 `StratifiedKFold` 5-Fold
+- 모델별 OOF probability에서 F1 기준 threshold 탐색
+- 비교 과정에서는 locked hold-out을 열지 않음
+
+현재 저장소에는 원본 CSV를 포함하지 않기 때문에 새 비교 결과를 임의로 기입하지 않습니다. `data/titanic_train.csv`를 배치한 뒤 아래 명령을 실행하면 `assets/ticket_model_recomparison.csv`가 생성됩니다.
+
+```powershell
+python scripts/compare_ticket_models.py
+```
+
 ![모델 비교](assets/model_comparison.png)
 
 ![내부 hold-out 혼동행렬](assets/confusion_matrix.png)
@@ -123,7 +140,7 @@ Kaggle test 418
 
 ### 최종 모델 비교 범위
 
-현재 Ticket 피처를 적용한 튜닝 RF의 OOF F1 `0.791`은 **현재 수행한 실험 중 가장 높은 결과**입니다. Ticket 피처를 동일하게 적용한 HGB와 XGB까지 다시 비교한 것은 아니므로 “모든 모델 중 최적”이라고 해석하지 않습니다.
+현재 Ticket 피처를 적용한 튜닝 RF의 OOF F1 `0.791`은 **현재 실행까지 완료된 실험 중 가장 높은 결과**입니다. 동일 Ticket 피처 조건에서 RF · HGB · XGB를 재비교하는 실행 스크립트는 추가했지만, 새 결과는 원본 train CSV로 실제 실행한 뒤에만 확정해 기록합니다.
 
 ### hold-out
 
@@ -131,8 +148,8 @@ OOF F1 `0.791`에 비해 hold-out F1은 `0.766`으로 낮았습니다. 하지만
 
 ## 다음 실험 후보
 
+- `scripts/compare_ticket_models.py` 실제 실행 후 동일조건 RF · HGB · XGB 결과 확정
 - Ticket 단위 group split과 현재 승객 단위 split 비교
-- 동일한 Ticket 피처 조건에서 RF · HGB · XGB 재비교
 - 파생 피처별 ablation table 작성
 - 여러 random seed에서 평균·표준편차 확인
 - probability calibration과 threshold 안정성 확인
@@ -147,6 +164,8 @@ titanic-survival-prediction/
 ├── requirements.txt
 ├── notebooks/
 │   └── titanic_survival_modeling.ipynb
+├── scripts/
+│   └── compare_ticket_models.py
 ├── docs/
 │   ├── decision-log.md
 │   └── experiment-history.md
@@ -183,4 +202,10 @@ Jupyter 또는 VS Code에서 `notebooks/titanic_survival_modeling.ipynb`를 열�
 assets/model_comparison.png
 assets/confusion_matrix.png
 submission.csv
+```
+
+동일한 Ticket 피처 조건에서 RF · HGB · XGB를 비교하려면 다음을 실행합니다.
+
+```powershell
+python scripts/compare_ticket_models.py
 ```
