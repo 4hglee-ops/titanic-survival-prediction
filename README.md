@@ -13,7 +13,7 @@ Kaggle Titanic 데이터를 사용해 생존 여부를 예측한 머신러닝 �
 
 내부 hold-out은 모델·피처·threshold 선택이 끝난 뒤 한 번만 평가했습니다. Kaggle test 데이터에는 정답이 없으므로 성능 평가가 아니라 `submission.csv` 생성에만 사용합니다.
 
-![Titanic 실험 과정과 의사결정 흐름](assets/experiment_decision_flow.svg)
+![Titanic 실험 과정과 의사결정 흐름](assets/experiment_decision_flow.png)
 
 > 위 흐름도는 과거 학습 당시 실험과 2026-08-27~28 GitHub 재검증을 구분합니다. 단계 사이의 숫자는 서로 다른 조건의 결과가 포함되어 있으므로 단순한 연속 성능 그래프로 해석하지 않습니다.
 
